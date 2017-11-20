@@ -1,9 +1,6 @@
-package scte35_decoder
+package common
 
 import (
-	"encoding/hex"
-	"fmt"
-
 	"github.com/chanyk-joseph/bits"
 )
 
@@ -94,8 +91,8 @@ type InsertComponent struct {
 	SpliceTime   *SpliceTime `json:"splice_time,omitempty"`
 }
 
-//ParseFromBytes parses input []byte to PrivateCommand object
-func (privateCommand *PrivateCommand) ParseFromBytes(input []byte) (numOfParsedBits int, err error) {
+//DecodeFromRawBytes parses input []byte to PrivateCommand object
+func (privateCommand *PrivateCommand) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
 	privateCommand.Identifier, _, err = bits.Uint32(input, numOfParsedBits+1)
 	numOfParsedBits += 32
 
@@ -106,8 +103,8 @@ func (privateCommand *PrivateCommand) ParseFromBytes(input []byte) (numOfParsedB
 	return numOfParsedBits, err
 }
 
-//ParseFromBytes parses input []byte to SpliceInsert object
-func (spliceInsert *SpliceInsert) ParseFromBytes(input []byte) (numOfParsedBits int, err error) {
+//DecodeFromRawBytes parses input []byte to SpliceInsert object
+func (spliceInsert *SpliceInsert) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
 	var tmpBytes []byte
 	var tmpUsedBits int
 
@@ -137,7 +134,7 @@ func (spliceInsert *SpliceInsert) ParseFromBytes(input []byte) (numOfParsedBits 
 		if *spliceInsert.ProgramSpliceFlag && !*spliceInsert.SpliceImmediateFlag {
 			spliceInsert.SpliceTime = &SpliceTime{}
 			tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 0)
-			tmpUsedBits, err = spliceInsert.SpliceTime.ParseFromBytes(tmpBytes)
+			tmpUsedBits, err = spliceInsert.SpliceTime.DecodeFromRawBytes(tmpBytes)
 			numOfParsedBits += tmpUsedBits
 		}
 		if !(*spliceInsert.ProgramSpliceFlag) {
@@ -148,7 +145,7 @@ func (spliceInsert *SpliceInsert) ParseFromBytes(input []byte) (numOfParsedBits 
 			for i := 0; i < int(*spliceInsert.ComponentCount); i++ {
 				comp := &InsertComponent{}
 				tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 0)
-				tmpUsedBits, err = comp.ParseFromBytes(tmpBytes, *spliceInsert.SpliceImmediateFlag)
+				tmpUsedBits, err = comp.DecodeFromRawBytes(tmpBytes, *spliceInsert.SpliceImmediateFlag)
 				numOfParsedBits += tmpUsedBits
 
 				insertComponents = append(insertComponents, *comp)
@@ -159,7 +156,7 @@ func (spliceInsert *SpliceInsert) ParseFromBytes(input []byte) (numOfParsedBits 
 		if *spliceInsert.DurationFlag {
 			b := &BreakDuration{}
 			tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 0)
-			tmpUsedBits, err = b.ParseFromBytes(tmpBytes)
+			tmpUsedBits, err = b.DecodeFromRawBytes(tmpBytes)
 			spliceInsert.BreakDuration = b
 			numOfParsedBits += tmpUsedBits
 		}
@@ -180,8 +177,8 @@ func (spliceInsert *SpliceInsert) ParseFromBytes(input []byte) (numOfParsedBits 
 	return numOfParsedBits, err
 }
 
-//ParseFromBytes parses input []byte to ScheduleEvent object
-func (scheduleEvent *ScheduleEvent) ParseFromBytes(input []byte) (numOfParsedBits int, err error) {
+//DecodeFromRawBytes parses input []byte to ScheduleEvent object
+func (scheduleEvent *ScheduleEvent) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
 	var tmpBytes []byte
 	var tmpUsedBits int
 
@@ -217,7 +214,7 @@ func (scheduleEvent *ScheduleEvent) ParseFromBytes(input []byte) (numOfParsedBit
 			for i := 0; i < int(*scheduleEvent.ComponentCount); i++ {
 				comp := &ScheduleComponent{}
 				tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 40)
-				tmpUsedBits, err = comp.ParseFromBytes(tmpBytes)
+				tmpUsedBits, err = comp.DecodeFromRawBytes(tmpBytes)
 				numOfParsedBits += tmpUsedBits
 
 				scheduleComponents = append(scheduleComponents, *comp)
@@ -228,7 +225,7 @@ func (scheduleEvent *ScheduleEvent) ParseFromBytes(input []byte) (numOfParsedBit
 		if *scheduleEvent.DurationFlag {
 			b := &BreakDuration{}
 			tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 0)
-			tmpUsedBits, err = b.ParseFromBytes(tmpBytes)
+			tmpUsedBits, err = b.DecodeFromRawBytes(tmpBytes)
 			scheduleEvent.BreakDuration = b
 			numOfParsedBits += tmpUsedBits
 		}
@@ -246,8 +243,8 @@ func (scheduleEvent *ScheduleEvent) ParseFromBytes(input []byte) (numOfParsedBit
 	return numOfParsedBits, nil
 }
 
-//ParseFromBytes parses input []byte to SpliceSchedule object
-func (spliceSchedule *SpliceSchedule) ParseFromBytes(input []byte) (numOfParsedBits int, err error) {
+//DecodeFromRawBytes parses input []byte to SpliceSchedule object
+func (spliceSchedule *SpliceSchedule) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
 	var tmpBytes []byte
 	var tmpUsedBits int
 
@@ -258,7 +255,7 @@ func (spliceSchedule *SpliceSchedule) ParseFromBytes(input []byte) (numOfParsedB
 	for i := 0; i < int(spliceSchedule.SpliceCount); i++ {
 		scheduleEvent := &ScheduleEvent{}
 		tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 0)
-		tmpUsedBits, err = scheduleEvent.ParseFromBytes(tmpBytes)
+		tmpUsedBits, err = scheduleEvent.DecodeFromRawBytes(tmpBytes)
 
 		tmpEvents = append(tmpEvents, *scheduleEvent)
 		numOfParsedBits += tmpUsedBits
@@ -271,8 +268,8 @@ func (spliceSchedule *SpliceSchedule) ParseFromBytes(input []byte) (numOfParsedB
 	return numOfParsedBits, err
 }
 
-//ParseFromBytes parses input []byte to InsertComponent object
-func (insertComponent *InsertComponent) ParseFromBytes(input []byte, spliceImmediateFlag bool) (numOfParsedBits int, err error) {
+//DecodeFromRawBytes parses input []byte to InsertComponent object
+func (insertComponent *InsertComponent) DecodeFromRawBytes(input []byte, spliceImmediateFlag bool) (numOfParsedBits int, err error) {
 	var tmpBytes []byte
 
 	insertComponent.ComponentTag, _, err = bits.Byte(input, numOfParsedBits+1)
@@ -283,7 +280,7 @@ func (insertComponent *InsertComponent) ParseFromBytes(input []byte, spliceImmed
 
 		bitsUsed := 0
 		tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 0)
-		bitsUsed, err = insertComponent.SpliceTime.ParseFromBytes(tmpBytes)
+		bitsUsed, err = insertComponent.SpliceTime.DecodeFromRawBytes(tmpBytes)
 		numOfParsedBits += bitsUsed
 	}
 
@@ -293,8 +290,8 @@ func (insertComponent *InsertComponent) ParseFromBytes(input []byte, spliceImmed
 	return numOfParsedBits, err
 }
 
-//ParseFromBytes parses input []byte to ScheduleComponent object
-func (scheduleComponent *ScheduleComponent) ParseFromBytes(input []byte) (numOfParsedBits int, err error) {
+//DecodeFromRawBytes parses input []byte to ScheduleComponent object
+func (scheduleComponent *ScheduleComponent) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
 	scheduleComponent.ComponentTag, _, err = bits.Byte(input, numOfParsedBits+1)
 	numOfParsedBits += 8
 
@@ -307,8 +304,8 @@ func (scheduleComponent *ScheduleComponent) ParseFromBytes(input []byte) (numOfP
 	return numOfParsedBits, nil
 }
 
-//ParseFromBytes parses input []byte to BreakDuration object
-func (breakDuration *BreakDuration) ParseFromBytes(input []byte) (numOfParsedBits int, err error) {
+//DecodeFromRawBytes parses input []byte to BreakDuration object
+func (breakDuration *BreakDuration) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
 	var tmpBytes []byte
 
 	breakDuration.AutoReturn, _, err = bits.Bool(input, numOfParsedBits+1)
@@ -328,11 +325,10 @@ func (breakDuration *BreakDuration) ParseFromBytes(input []byte) (numOfParsedBit
 	return numOfParsedBits, err
 }
 
-//ParseFromBytes parses input []byte to SpliceTime object
-func (spliceTime *SpliceTime) ParseFromBytes(input []byte) (numOfParsedBits int, err error) {
+//DecodeFromRawBytes parses input []byte to SpliceTime object
+func (spliceTime *SpliceTime) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
 	var tmpBytes []byte
 
-	fmt.Println("hex1: ", hex.EncodeToString(input))
 	spliceTime.TimeSpecifiedFlag, _, err = bits.Bool(input, numOfParsedBits+1)
 	numOfParsedBits++
 
@@ -347,15 +343,14 @@ func (spliceTime *SpliceTime) ParseFromBytes(input []byte) (numOfParsedBits int,
 	} else {
 		numOfParsedBits += 7 //reserved 7 bits
 	}
-	fmt.Println("numOfParsedBits: ", numOfParsedBits)
 
 	return numOfParsedBits, err
 }
 
-//ParseFromBytes parses input []byte to TimeSignal object
-func (timeSignal *TimeSignal) ParseFromBytes(input []byte) (numOfParsedBits int, err error) {
+//DecodeFromRawBytes parses input []byte to TimeSignal object
+func (timeSignal *TimeSignal) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
 	timeSignal.SpliceTime = &SpliceTime{}
-	numOfParsedBits, err = timeSignal.SpliceTime.ParseFromBytes(input)
+	numOfParsedBits, err = timeSignal.SpliceTime.DecodeFromRawBytes(input)
 
 	return numOfParsedBits, err
 }
