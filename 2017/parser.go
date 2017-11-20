@@ -65,8 +65,6 @@ func (spliceDesc *SpliceDescriptor) DecodeFromRawBytes(input []byte) (numOfParse
 		spliceDescriptorUsedBits, err = segDesc.DecodeFromRawBytes(tmpBytes)
 
 		spliceDesc.SegmentationDescriptor = segDesc
-	default:
-		return 0, errors.New("Unsupported Splice Descriptor Tag: " + strconv.Itoa(int(spliceDesc.SpliceDescriptorTag)))
 	}
 	numOfParsedBits += spliceDescriptorUsedBits
 
@@ -258,5 +256,5 @@ func (scte35 *SCTE35) JSON(indent ...string) (result string) {
 }
 
 func (scte35 *SCTE35) SchemaVersion() string {
-	return "v2013"
+	return "v2017"
 }

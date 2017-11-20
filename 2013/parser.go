@@ -65,8 +65,6 @@ func (spliceDesc *SpliceDescriptor) DecodeFromRawBytes(input []byte) (numOfParse
 		spliceDescriptorUsedBits, err = segDesc.DecodeFromRawBytes(tmpBytes)
 
 		spliceDesc.SegmentationDescriptor = segDesc
-	default:
-		return 0, errors.New("Unsupported Splice Descriptor Tag: " + strconv.Itoa(int(spliceDesc.SpliceDescriptorTag)))
 	}
 	numOfParsedBits += spliceDescriptorUsedBits
 
