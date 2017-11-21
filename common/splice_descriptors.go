@@ -44,6 +44,12 @@ type SegmentationComponent struct {
 	PTSOffset    uint64 `json:"pts_offset,omitempty"` //33 bits
 }
 
+type TimeDescriptor struct {
+	TAI_seconds uint64 `json:"tai_seconds"`
+	TAI_ns      uint32 `json:"tai_ns"`
+	UTC_offset  uint16 `json:"utc_offset"`
+}
+
 func (segDesc *SegmentationDescriptor) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
 	var tmpBytes []byte
 
@@ -158,6 +164,23 @@ func (dtmfDesc *DTMFDescriptor) DecodeFromRawBytes(input []byte) (numOfParsedBit
 
 	dtmfDesc.DTMFChars, _, err = bits.String(input, numOfParsedBits+1, int(dtmfDesc.DTMFCount)*8)
 	numOfParsedBits += int(dtmfDesc.DTMFCount) * 8
+
+	return numOfParsedBits, err
+}
+
+func (timeDesc *TimeDescriptor) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
+	var tmpBytes []byte
+
+	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 48)
+	tmpBytes = append([]byte{0x00, 0x00}, tmpBytes...)
+	timeDesc.TAI_seconds, _, err = bits.Uint64(tmpBytes, 1)
+	numOfParsedBits += 48
+
+	timeDesc.TAI_ns, _, err = bits.Uint32(input, numOfParsedBits+1)
+	numOfParsedBits += 32
+
+	timeDesc.UTC_offset, _, err = bits.Uint16(input, numOfParsedBits+1)
+	numOfParsedBits += 16
 
 	return numOfParsedBits, err
 }

@@ -32,6 +32,7 @@ type SpliceDescriptor struct {
 	AvailDescriptor        *common.AvailDescriptor `json:"avail_descriptor,omitempty"`
 	DTMFDescriptor         *common.DTMFDescriptor  `json:"dtmf_descriptor,omitempty"`
 	SegmentationDescriptor *SegmentationDescriptor `json:"segmentation_descriptor,omitempty"`
+	TimeDescriptor         *common.TimeDescriptor  `json:"time_descriptor,omitempty"`
 }
 
 func (spliceDesc *SpliceDescriptor) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
@@ -65,6 +66,11 @@ func (spliceDesc *SpliceDescriptor) DecodeFromRawBytes(input []byte) (numOfParse
 		spliceDescriptorUsedBits, err = segDesc.DecodeFromRawBytes(tmpBytes)
 
 		spliceDesc.SegmentationDescriptor = segDesc
+	case 0x03:
+		timeDesc := &common.TimeDescriptor{}
+		spliceDescriptorUsedBits, err = timeDesc.DecodeFromRawBytes(tmpBytes)
+
+		spliceDesc.TimeDescriptor = timeDesc
 	}
 	numOfParsedBits += spliceDescriptorUsedBits
 
