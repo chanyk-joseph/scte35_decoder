@@ -14,11 +14,15 @@ import (
 	SCTE35_2017 "github.com/chanyk-joseph/scte35_decoder/2017"
 )
 
+func check(err error){
+    if err != nil {
+        panic(err)
+    }
+}
+
 func main() {
 	data, err := hex.DecodeString("fc304700000000000000fff00506fe1909d1f9002f0223435545490000000a7f9f01144e6174696f6e616c5f4261636b4f75745f456e64310000f0085053394b546524dd8c7fef2b10a4")
-	if err != nil {
-		panic(err)
-	}
+	check(err)
 
 	obj := &SCTE35_2017.SCTE35{}
 	_, err = obj.DecodeFromRawBytes(data)
