@@ -1,7 +1,7 @@
 package common
 
 import (
-	"github.com/chanyk-joseph/bits"
+	bits "github.com/chanyk-joseph/gobits"
 )
 
 type AvailDescriptor struct {

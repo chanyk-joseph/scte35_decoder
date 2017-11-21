@@ -6,7 +6,7 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/chanyk-joseph/bits"
+	bits "github.com/chanyk-joseph/gobits"
 	common "github.com/chanyk-joseph/scte35_decoder/common"
 )
 
