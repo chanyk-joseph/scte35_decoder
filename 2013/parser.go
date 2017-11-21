@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"strconv"
+	"unsafe"
 
 	bits "github.com/chanyk-joseph/gobits"
 	common "github.com/chanyk-joseph/scte35_decoder/common"
@@ -227,13 +228,21 @@ func (scte35 *SCTE35) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err
 	return numOfParsedBits, nil
 }
 
-func (scte35 *SCTE35) DecodeFromJSON(jsonStr string) (err error) {
-	obj := &SCTE35{}
-	err = json.Unmarshal([]byte(jsonStr), &obj)
-
-	if err != nil {
-		scte35 = obj
+func (scte35 *SCTE35) UnmarshalJSON(bytes []byte) (err error) {
+	type Alias SCTE35
+	aux := &struct {
+		*Alias
+	}{
+		Alias: (*Alias)(scte35),
 	}
+	err = json.Unmarshal(bytes, &aux)
+
+	scte35 = (*SCTE35)(unsafe.Pointer(aux))
+	return err
+}
+
+func (scte35 *SCTE35) DecodeFromJSON(jsonStr string) (err error) {
+	err = scte35.UnmarshalJSON([]byte(jsonStr))
 	return err
 }
 

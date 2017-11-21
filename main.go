@@ -23,13 +23,24 @@ func main() {
 	obj := &SCTE35_2017.SCTE35{}
 	_, err = obj.DecodeFromRawBytes(data)
 	check(err)
-	if err == nil {
-		fmt.Println("Schema Version: ", obj.SchemaVersion())
-		fmt.Println("Table ID: ", obj.TableID)
-		fmt.Println("splice_command_type: ", obj.SpliceCommandType)
-		fmt.Println("CRC32 In Hex: ", obj.CRC32InHex)
-		fmt.Println("Entire SCTE35 Structure: \n", obj.JSON("	"))
-	}
+
+	fmt.Println("Schema Version: ", obj.SchemaVersion())
+	fmt.Println("Table ID: ", obj.TableID)
+	fmt.Println("splice_command_type: ", obj.SpliceCommandType)
+	fmt.Println("CRC32 In Hex: ", obj.CRC32InHex)
+	fmt.Println("Entire SCTE35 Structure: \n", obj.JSON("	"))
+
+	fmt.Println("==============================================================================")
+
+	jsonStr := obj.JSON()
+	obj2 := &SCTE35_2017.SCTE35{}
+	err = obj2.DecodeFromJSON(jsonStr)
+	check(err)
+	fmt.Println("Schema Version: ", obj2.SchemaVersion())
+	fmt.Println("Table ID: ", obj2.TableID)
+	fmt.Println("splice_command_type: ", obj2.SpliceCommandType)
+	fmt.Println("CRC32 In Hex: ", obj2.CRC32InHex)
+	fmt.Println("Entire SCTE35 Structure: \n", obj2.JSON("	"))
 
 	// parsers := [...]common.Parser{&SCTE35_2017.SCTE35{}, &SCTE35_2013.SCTE35{}}
 	// for i := 0; i < len(parsers); i++ {
