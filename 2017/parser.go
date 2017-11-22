@@ -39,17 +39,17 @@ type SpliceDescriptor struct {
 func (spliceDesc *SpliceDescriptor) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
 	var tmpBytes []byte
 
-	spliceDesc.SpliceDescriptorTag, _, err = bits.Byte(input, numOfParsedBits+1)
+	spliceDesc.SpliceDescriptorTag, _, err = bits.Byte(input, numOfParsedBits)
 	numOfParsedBits += 8
 
-	spliceDesc.DescriptorLength, _, err = bits.Uint8(input, numOfParsedBits+1)
+	spliceDesc.DescriptorLength, _, err = bits.Uint8(input, numOfParsedBits)
 	numOfParsedBits += 8
 
-	spliceDesc.Identifier, _, err = bits.Uint32(input, numOfParsedBits+1)
+	spliceDesc.Identifier, _, err = bits.Uint32(input, numOfParsedBits)
 	numOfParsedBits += 32
 
 	numOfBitsLeft := int(spliceDesc.DescriptorLength-4) * 8 // -4 for identifier
-	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, numOfBitsLeft)
+	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, numOfBitsLeft)
 	spliceDescriptorUsedBits := 0
 	switch spliceDesc.SpliceDescriptorTag {
 	case 0x00:
@@ -83,7 +83,7 @@ func (spliceDesc *SpliceDescriptor) DecodeFromRawBytes(input []byte) (numOfParse
 		return 0, errors.New(errMsg)
 	}
 	if numOfBitsLeftForPrivateBytes > 0 {
-		_, spliceDesc.PrivateByteInHex, err = bits.HexString(input, numOfParsedBits+1, numOfBitsLeftForPrivateBytes)
+		_, spliceDesc.PrivateByteInHex, err = bits.HexString(input, numOfParsedBits, numOfBitsLeftForPrivateBytes)
 		numOfParsedBits += numOfBitsLeftForPrivateBytes
 	}
 
@@ -93,56 +93,56 @@ func (spliceDesc *SpliceDescriptor) DecodeFromRawBytes(input []byte) (numOfParse
 func (scte35 *SCTE35) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
 	var tmpBytes []byte
 
-	scte35.TableID, _, err = bits.Uint8(input, numOfParsedBits+1)
+	scte35.TableID, _, err = bits.Uint8(input, numOfParsedBits)
 	numOfParsedBits += 8
 
-	scte35.SectionSyntaxIndicator, _, err = bits.Bool(input, numOfParsedBits+1)
+	scte35.SectionSyntaxIndicator, _, err = bits.Bool(input, numOfParsedBits)
 	numOfParsedBits++
 
-	scte35.PrivateIndicator, _, err = bits.Bool(input, numOfParsedBits+1)
+	scte35.PrivateIndicator, _, err = bits.Bool(input, numOfParsedBits)
 	numOfParsedBits++
 
 	numOfParsedBits += 2 //reserved 2 bits
 
-	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 12)
+	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 12)
 	tmpBytes, _ = bits.ShiftRight(tmpBytes, 4)
-	scte35.SectionLength, _, err = bits.Uint16(tmpBytes, 1)
+	scte35.SectionLength, _, err = bits.Uint16(tmpBytes, 0)
 	numOfParsedBits += 12
 
-	scte35.ProtocolVersion, _, err = bits.Uint8(input, numOfParsedBits+1)
+	scte35.ProtocolVersion, _, err = bits.Uint8(input, numOfParsedBits)
 	numOfParsedBits += 8
 
-	scte35.EncryptedPacket, _, err = bits.Bool(input, numOfParsedBits+1)
+	scte35.EncryptedPacket, _, err = bits.Bool(input, numOfParsedBits)
 	numOfParsedBits++
 
-	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 6)
+	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 6)
 	tmpBytes, _ = bits.ShiftRight(tmpBytes, 2)
-	scte35.EncryptionAlgorithm, _, err = bits.Byte(tmpBytes, 1)
+	scte35.EncryptionAlgorithm, _, err = bits.Byte(tmpBytes, 0)
 	numOfParsedBits += 6
 
-	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 33)
+	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 33)
 	tmpBytes, _ = bits.ShiftRight(tmpBytes, 7)
 	tmpBytes = append([]byte{0x00, 0x00, 0x00}, tmpBytes...)
-	scte35.PTSAdjustment, _, err = bits.Uint64(tmpBytes, 1)
+	scte35.PTSAdjustment, _, err = bits.Uint64(tmpBytes, 0)
 	numOfParsedBits += 33
 
-	scte35.CWIndex, _, err = bits.Uint8(input, numOfParsedBits+1)
+	scte35.CWIndex, _, err = bits.Uint8(input, numOfParsedBits)
 	numOfParsedBits += 8
 
-	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 12)
+	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 12)
 	tmpBytes, _ = bits.ShiftRight(tmpBytes, 4)
-	scte35.Tier, _, err = bits.Uint16(tmpBytes, 1)
+	scte35.Tier, _, err = bits.Uint16(tmpBytes, 0)
 	numOfParsedBits += 12
 
-	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 12)
+	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 12)
 	tmpBytes, _ = bits.ShiftRight(tmpBytes, 4)
-	scte35.SpliceCommandLength, _, err = bits.Uint16(tmpBytes, 1)
+	scte35.SpliceCommandLength, _, err = bits.Uint16(tmpBytes, 0)
 	numOfParsedBits += 12
 
-	scte35.SpliceCommandType, _, err = bits.Byte(input, numOfParsedBits+1)
+	scte35.SpliceCommandType, _, err = bits.Byte(input, numOfParsedBits)
 	numOfParsedBits += 8
 
-	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, int(scte35.SpliceCommandLength*8))
+	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, int(scte35.SpliceCommandLength*8))
 	numOfCommandBits := 0
 	switch scte35.SpliceCommandType {
 	case 0x00:
@@ -182,14 +182,14 @@ func (scte35 *SCTE35) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err
 	}
 	numOfParsedBits += numOfCommandBits
 
-	scte35.DescriptorLoopLength, _, err = bits.Uint16(input, numOfParsedBits+1)
+	scte35.DescriptorLoopLength, _, err = bits.Uint16(input, numOfParsedBits)
 	numOfParsedBits += 16
 
 	numOfBitsForDescriptors := int(scte35.DescriptorLoopLength) * 8
 	endBitPos := numOfParsedBits + numOfBitsForDescriptors
 	for numOfParsedBits < endBitPos {
 		spliceDescriptor := &SpliceDescriptor{}
-		tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 0)
+		tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 0)
 
 		descUsedBits := 0
 		descUsedBits, err = spliceDescriptor.DecodeFromRawBytes(tmpBytes)
@@ -216,16 +216,16 @@ func (scte35 *SCTE35) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err
 	}
 
 	if inputBitLen-numOfParsedBits-bitRequiredForCRC32 > 0 {
-		_, scte35.AlignmentStuffingInHex, err = bits.HexString(input, numOfParsedBits+1, inputBitLen-numOfParsedBits-bitRequiredForCRC32)
+		_, scte35.AlignmentStuffingInHex, err = bits.HexString(input, numOfParsedBits, inputBitLen-numOfParsedBits-bitRequiredForCRC32)
 		numOfParsedBits += (inputBitLen - numOfParsedBits - bitRequiredForCRC32)
 	}
 
 	if scte35.EncryptedPacket {
-		_, scte35.ECRC32InHex, err = bits.HexString(input, numOfParsedBits+1, 32)
+		_, scte35.ECRC32InHex, err = bits.HexString(input, numOfParsedBits, 32)
 		numOfParsedBits += 32
 	}
 
-	scte35.CRC32InHex, _, err = bits.HexString(input, numOfParsedBits+1, 32)
+	scte35.CRC32InHex, _, err = bits.HexString(input, numOfParsedBits, 32)
 	numOfParsedBits += 32
 
 	if numOfParsedBits != bits.Len(input) {

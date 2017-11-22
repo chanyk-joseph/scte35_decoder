@@ -53,59 +53,59 @@ type TimeDescriptor struct {
 func (segDesc *SegmentationDescriptor) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
 	var tmpBytes []byte
 
-	segDesc.SegmentationEventID, _, err = bits.Uint32(input, numOfParsedBits+1)
+	segDesc.SegmentationEventID, _, err = bits.Uint32(input, numOfParsedBits)
 	numOfParsedBits += 32
 
-	segDesc.SegmentationEventCancelIndicator, _, err = bits.Bool(input, numOfParsedBits+1)
+	segDesc.SegmentationEventCancelIndicator, _, err = bits.Bool(input, numOfParsedBits)
 	numOfParsedBits++
 
 	numOfParsedBits += 7 //reserved 7 bits
 
 	if !segDesc.SegmentationEventCancelIndicator {
-		_, segDesc.ProgramSegmentationFlag, err = bits.Bool(input, numOfParsedBits+1)
+		_, segDesc.ProgramSegmentationFlag, err = bits.Bool(input, numOfParsedBits)
 		numOfParsedBits++
 
-		_, segDesc.SegmentationDurationFlag, err = bits.Bool(input, numOfParsedBits+1)
+		_, segDesc.SegmentationDurationFlag, err = bits.Bool(input, numOfParsedBits)
 		numOfParsedBits++
 
-		_, segDesc.DeliveryNotRestrictedFlag, err = bits.Bool(input, numOfParsedBits+1)
+		_, segDesc.DeliveryNotRestrictedFlag, err = bits.Bool(input, numOfParsedBits)
 		numOfParsedBits++
 
 		if !*segDesc.DeliveryNotRestrictedFlag {
-			_, segDesc.WebDeliveryAllowedFlag, err = bits.Bool(input, numOfParsedBits+1)
+			_, segDesc.WebDeliveryAllowedFlag, err = bits.Bool(input, numOfParsedBits)
 			numOfParsedBits++
 
-			_, segDesc.NoRegionalBlackoutFlag, err = bits.Bool(input, numOfParsedBits+1)
+			_, segDesc.NoRegionalBlackoutFlag, err = bits.Bool(input, numOfParsedBits)
 			numOfParsedBits++
 
-			_, segDesc.ArchiveAllowedFlag, err = bits.Bool(input, numOfParsedBits+1)
+			_, segDesc.ArchiveAllowedFlag, err = bits.Bool(input, numOfParsedBits)
 			numOfParsedBits++
 
-			tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 2)
+			tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 2)
 			tmpBytes, _ = bits.ShiftRight(tmpBytes, 6)
-			_, segDesc.DeviceRestrictions, err = bits.Uint8(tmpBytes, 1)
+			_, segDesc.DeviceRestrictions, err = bits.Uint8(tmpBytes, 0)
 			numOfParsedBits += 2
 		} else {
 			numOfParsedBits += 5
 		}
 
 		if !*segDesc.ProgramSegmentationFlag {
-			_, segDesc.ComponentCount, err = bits.Uint8(input, numOfParsedBits+1)
+			_, segDesc.ComponentCount, err = bits.Uint8(input, numOfParsedBits)
 			numOfParsedBits += 8
 
 			var components []SegmentationComponent
 			for i := 0; i < int(*segDesc.ComponentCount); i++ {
 				segComp := SegmentationComponent{}
 
-				segComp.ComponentTag, _, err = bits.Byte(input, numOfParsedBits+1)
+				segComp.ComponentTag, _, err = bits.Byte(input, numOfParsedBits)
 				numOfParsedBits += 8
 
 				numOfParsedBits += 7 //reserved 7 bits
 
-				tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 33)
+				tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 33)
 				tmpBytes, _ = bits.ShiftRight(tmpBytes, 7)
 				tmpBytes = append([]byte{0x00, 0x00, 0x00}, tmpBytes...)
-				segComp.PTSOffset, _, err = bits.Uint64(tmpBytes, 1)
+				segComp.PTSOffset, _, err = bits.Uint64(tmpBytes, 0)
 				numOfParsedBits += 33
 
 				components = append(components, segComp)
@@ -114,30 +114,30 @@ func (segDesc *SegmentationDescriptor) DecodeFromRawBytes(input []byte) (numOfPa
 		}
 
 		if *segDesc.SegmentationDurationFlag {
-			tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 40)
+			tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 40)
 			tmpBytes = append([]byte{0x00, 0x00, 0x00}, tmpBytes...)
-			_, segDesc.SegmentationDuration, err = bits.Uint64(tmpBytes, 1)
+			_, segDesc.SegmentationDuration, err = bits.Uint64(tmpBytes, 0)
 			numOfParsedBits += 40
 		}
 
-		_, segDesc.SegmentationUpidType, err = bits.Byte(input, numOfParsedBits+1)
+		_, segDesc.SegmentationUpidType, err = bits.Byte(input, numOfParsedBits)
 		numOfParsedBits += 8
 
-		_, segDesc.SegmentationUpidLength, err = bits.Uint8(input, numOfParsedBits+1)
+		_, segDesc.SegmentationUpidLength, err = bits.Uint8(input, numOfParsedBits)
 		numOfParsedBits += 8
 
 		if int(*segDesc.SegmentationUpidLength) > 0 {
-			_, segDesc.SegmentationUpidInHex, err = bits.HexString(input, numOfParsedBits+1, int(*segDesc.SegmentationUpidLength)*8)
+			_, segDesc.SegmentationUpidInHex, err = bits.HexString(input, numOfParsedBits, int(*segDesc.SegmentationUpidLength)*8)
 			numOfParsedBits += (int(*segDesc.SegmentationUpidLength) * 8)
 		}
 
-		_, segDesc.SegmentationTypeID, err = bits.Uint8(input, numOfParsedBits+1)
+		_, segDesc.SegmentationTypeID, err = bits.Uint8(input, numOfParsedBits)
 		numOfParsedBits += 8
 
-		_, segDesc.SegmentNum, err = bits.Uint8(input, numOfParsedBits+1)
+		_, segDesc.SegmentNum, err = bits.Uint8(input, numOfParsedBits)
 		numOfParsedBits += 8
 
-		_, segDesc.SegmentsExpected, err = bits.Uint8(input, numOfParsedBits+1)
+		_, segDesc.SegmentsExpected, err = bits.Uint8(input, numOfParsedBits)
 		numOfParsedBits += 8
 	}
 
@@ -152,17 +152,17 @@ func (availDesc *AvailDescriptor) DecodeFromRawBytes(input []byte) (numOfParsedB
 func (dtmfDesc *DTMFDescriptor) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
 	var tmpBytes []byte
 
-	dtmfDesc.Preroll, _, err = bits.Byte(input, numOfParsedBits+1)
+	dtmfDesc.Preroll, _, err = bits.Byte(input, numOfParsedBits)
 	numOfParsedBits += 8
 
-	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 3)
+	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 3)
 	tmpBytes, _ = bits.ShiftRight(tmpBytes, 5)
-	dtmfDesc.DTMFCount, _, err = bits.Uint8(tmpBytes, 1)
+	dtmfDesc.DTMFCount, _, err = bits.Uint8(tmpBytes, 0)
 	numOfParsedBits += 3
 
 	numOfParsedBits += 5 // reserved 5 bits
 
-	dtmfDesc.DTMFChars, _, err = bits.String(input, numOfParsedBits+1, int(dtmfDesc.DTMFCount)*8)
+	dtmfDesc.DTMFChars, _, err = bits.String(input, numOfParsedBits, int(dtmfDesc.DTMFCount)*8)
 	numOfParsedBits += int(dtmfDesc.DTMFCount) * 8
 
 	return numOfParsedBits, err
@@ -171,15 +171,15 @@ func (dtmfDesc *DTMFDescriptor) DecodeFromRawBytes(input []byte) (numOfParsedBit
 func (timeDesc *TimeDescriptor) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
 	var tmpBytes []byte
 
-	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 48)
+	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 48)
 	tmpBytes = append([]byte{0x00, 0x00}, tmpBytes...)
-	timeDesc.TAI_seconds, _, err = bits.Uint64(tmpBytes, 1)
+	timeDesc.TAI_seconds, _, err = bits.Uint64(tmpBytes, 0)
 	numOfParsedBits += 48
 
-	timeDesc.TAI_ns, _, err = bits.Uint32(input, numOfParsedBits+1)
+	timeDesc.TAI_ns, _, err = bits.Uint32(input, numOfParsedBits)
 	numOfParsedBits += 32
 
-	timeDesc.UTC_offset, _, err = bits.Uint16(input, numOfParsedBits+1)
+	timeDesc.UTC_offset, _, err = bits.Uint16(input, numOfParsedBits)
 	numOfParsedBits += 16
 
 	return numOfParsedBits, err

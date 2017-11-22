@@ -93,11 +93,11 @@ type InsertComponent struct {
 
 //DecodeFromRawBytes parses input []byte to PrivateCommand object
 func (privateCommand *PrivateCommand) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
-	privateCommand.Identifier, _, err = bits.Uint32(input, numOfParsedBits+1)
+	privateCommand.Identifier, _, err = bits.Uint32(input, numOfParsedBits)
 	numOfParsedBits += 32
 
 	bytesLeft := len(input) - 4
-	_, privateCommand.PrivateByteInHex, err = bits.HexString(input, numOfParsedBits+1, bytesLeft*8)
+	_, privateCommand.PrivateByteInHex, err = bits.HexString(input, numOfParsedBits, bytesLeft*8)
 	numOfParsedBits += (bytesLeft * 8)
 
 	return numOfParsedBits, err
@@ -108,43 +108,43 @@ func (spliceInsert *SpliceInsert) DecodeFromRawBytes(input []byte) (numOfParsedB
 	var tmpBytes []byte
 	var tmpUsedBits int
 
-	spliceInsert.SpliceEventID, _, err = bits.Uint32(input, numOfParsedBits+1)
+	spliceInsert.SpliceEventID, _, err = bits.Uint32(input, numOfParsedBits)
 	numOfParsedBits += 32
 
-	spliceInsert.SpliceEventCancelIndicator, _, err = bits.Bool(input, numOfParsedBits+1)
+	spliceInsert.SpliceEventCancelIndicator, _, err = bits.Bool(input, numOfParsedBits)
 	numOfParsedBits++
 
 	numOfParsedBits += 7 //reserved 7 bits
 
 	if !spliceInsert.SpliceEventCancelIndicator {
-		_, spliceInsert.OutOfNetworkIndicator, err = bits.Bool(input, numOfParsedBits+1)
+		_, spliceInsert.OutOfNetworkIndicator, err = bits.Bool(input, numOfParsedBits)
 		numOfParsedBits++
 
-		_, spliceInsert.ProgramSpliceFlag, err = bits.Bool(input, numOfParsedBits+1)
+		_, spliceInsert.ProgramSpliceFlag, err = bits.Bool(input, numOfParsedBits)
 		numOfParsedBits++
 
-		_, spliceInsert.DurationFlag, err = bits.Bool(input, numOfParsedBits+1)
+		_, spliceInsert.DurationFlag, err = bits.Bool(input, numOfParsedBits)
 		numOfParsedBits++
 
-		_, spliceInsert.SpliceImmediateFlag, err = bits.Bool(input, numOfParsedBits+1)
+		_, spliceInsert.SpliceImmediateFlag, err = bits.Bool(input, numOfParsedBits)
 		numOfParsedBits++
 
 		numOfParsedBits += 4 //reserved 4 bits
 
 		if *spliceInsert.ProgramSpliceFlag && !*spliceInsert.SpliceImmediateFlag {
 			spliceInsert.SpliceTime = &SpliceTime{}
-			tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 0)
+			tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 0)
 			tmpUsedBits, err = spliceInsert.SpliceTime.DecodeFromRawBytes(tmpBytes)
 			numOfParsedBits += tmpUsedBits
 		}
 		if !(*spliceInsert.ProgramSpliceFlag) {
-			_, spliceInsert.ComponentCount, err = bits.Uint8(input, numOfParsedBits+1)
+			_, spliceInsert.ComponentCount, err = bits.Uint8(input, numOfParsedBits)
 			numOfParsedBits += 8
 
 			var insertComponents []InsertComponent
 			for i := 0; i < int(*spliceInsert.ComponentCount); i++ {
 				comp := &InsertComponent{}
-				tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 0)
+				tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 0)
 				tmpUsedBits, err = comp.DecodeFromRawBytes(tmpBytes, *spliceInsert.SpliceImmediateFlag)
 				numOfParsedBits += tmpUsedBits
 
@@ -155,19 +155,19 @@ func (spliceInsert *SpliceInsert) DecodeFromRawBytes(input []byte) (numOfParsedB
 
 		if *spliceInsert.DurationFlag {
 			b := &BreakDuration{}
-			tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 0)
+			tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 0)
 			tmpUsedBits, err = b.DecodeFromRawBytes(tmpBytes)
 			spliceInsert.BreakDuration = b
 			numOfParsedBits += tmpUsedBits
 		}
 
-		_, spliceInsert.UniqueProgramID, err = bits.Uint16(input, numOfParsedBits+1)
+		_, spliceInsert.UniqueProgramID, err = bits.Uint16(input, numOfParsedBits)
 		numOfParsedBits += 16
 
-		_, spliceInsert.AvailNum, err = bits.Byte(input, numOfParsedBits+1)
+		_, spliceInsert.AvailNum, err = bits.Byte(input, numOfParsedBits)
 		numOfParsedBits += 8
 
-		_, spliceInsert.AvailsExpected, err = bits.Byte(input, numOfParsedBits+1)
+		_, spliceInsert.AvailsExpected, err = bits.Byte(input, numOfParsedBits)
 		numOfParsedBits += 8
 	}
 
@@ -182,38 +182,38 @@ func (scheduleEvent *ScheduleEvent) DecodeFromRawBytes(input []byte) (numOfParse
 	var tmpBytes []byte
 	var tmpUsedBits int
 
-	scheduleEvent.SpliceEventID, _, err = bits.Uint32(input, numOfParsedBits+1)
+	scheduleEvent.SpliceEventID, _, err = bits.Uint32(input, numOfParsedBits)
 	numOfParsedBits += 32
 
-	scheduleEvent.SpliceEventCancelIndicator, _, err = bits.Bool(input, numOfParsedBits+1)
+	scheduleEvent.SpliceEventCancelIndicator, _, err = bits.Bool(input, numOfParsedBits)
 	numOfParsedBits++
 
 	numOfParsedBits += 7 //reserved 7 bits
 
 	if !scheduleEvent.SpliceEventCancelIndicator {
-		_, scheduleEvent.OutOfNetworkIndicator, err = bits.Bool(input, numOfParsedBits+1)
+		_, scheduleEvent.OutOfNetworkIndicator, err = bits.Bool(input, numOfParsedBits)
 		numOfParsedBits++
 
-		_, scheduleEvent.ProgramSpliceFlag, err = bits.Bool(input, numOfParsedBits+1)
+		_, scheduleEvent.ProgramSpliceFlag, err = bits.Bool(input, numOfParsedBits)
 		numOfParsedBits++
 
-		_, scheduleEvent.DurationFlag, err = bits.Bool(input, numOfParsedBits+1)
+		_, scheduleEvent.DurationFlag, err = bits.Bool(input, numOfParsedBits)
 		numOfParsedBits++
 
 		numOfParsedBits += 4 //reserved 5 bits
 
 		if *scheduleEvent.ProgramSpliceFlag {
-			_, scheduleEvent.UTCSpliceTime, err = bits.Uint32(input, numOfParsedBits+1)
+			_, scheduleEvent.UTCSpliceTime, err = bits.Uint32(input, numOfParsedBits)
 			numOfParsedBits += 32
 		}
 		if !(*scheduleEvent.ProgramSpliceFlag) {
-			_, scheduleEvent.ComponentCount, err = bits.Uint8(input, numOfParsedBits+1)
+			_, scheduleEvent.ComponentCount, err = bits.Uint8(input, numOfParsedBits)
 			numOfParsedBits += 8
 
 			var scheduleComponents []ScheduleComponent
 			for i := 0; i < int(*scheduleEvent.ComponentCount); i++ {
 				comp := &ScheduleComponent{}
-				tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 40)
+				tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 40)
 				tmpUsedBits, err = comp.DecodeFromRawBytes(tmpBytes)
 				numOfParsedBits += tmpUsedBits
 
@@ -224,19 +224,19 @@ func (scheduleEvent *ScheduleEvent) DecodeFromRawBytes(input []byte) (numOfParse
 
 		if *scheduleEvent.DurationFlag {
 			b := &BreakDuration{}
-			tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 0)
+			tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 0)
 			tmpUsedBits, err = b.DecodeFromRawBytes(tmpBytes)
 			scheduleEvent.BreakDuration = b
 			numOfParsedBits += tmpUsedBits
 		}
 
-		_, scheduleEvent.UniqueProgramID, err = bits.Uint16(input, numOfParsedBits+1)
+		_, scheduleEvent.UniqueProgramID, err = bits.Uint16(input, numOfParsedBits)
 		numOfParsedBits += 16
 
-		_, scheduleEvent.AvailNum, err = bits.Byte(input, numOfParsedBits+1)
+		_, scheduleEvent.AvailNum, err = bits.Byte(input, numOfParsedBits)
 		numOfParsedBits += 8
 
-		_, scheduleEvent.AvailsExpected, err = bits.Byte(input, numOfParsedBits+1)
+		_, scheduleEvent.AvailsExpected, err = bits.Byte(input, numOfParsedBits)
 		numOfParsedBits += 8
 	}
 
@@ -248,13 +248,13 @@ func (spliceSchedule *SpliceSchedule) DecodeFromRawBytes(input []byte) (numOfPar
 	var tmpBytes []byte
 	var tmpUsedBits int
 
-	spliceSchedule.SpliceCount, _, err = bits.Uint8(input, numOfParsedBits+1)
+	spliceSchedule.SpliceCount, _, err = bits.Uint8(input, numOfParsedBits)
 	numOfParsedBits += 8
 
 	tmpEvents := []ScheduleEvent{}
 	for i := 0; i < int(spliceSchedule.SpliceCount); i++ {
 		scheduleEvent := &ScheduleEvent{}
-		tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 0)
+		tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 0)
 		tmpUsedBits, err = scheduleEvent.DecodeFromRawBytes(tmpBytes)
 
 		tmpEvents = append(tmpEvents, *scheduleEvent)
@@ -272,14 +272,14 @@ func (spliceSchedule *SpliceSchedule) DecodeFromRawBytes(input []byte) (numOfPar
 func (insertComponent *InsertComponent) DecodeFromRawBytes(input []byte, spliceImmediateFlag bool) (numOfParsedBits int, err error) {
 	var tmpBytes []byte
 
-	insertComponent.ComponentTag, _, err = bits.Byte(input, numOfParsedBits+1)
+	insertComponent.ComponentTag, _, err = bits.Byte(input, numOfParsedBits)
 	numOfParsedBits += 8
 
 	if !spliceImmediateFlag {
 		insertComponent.SpliceTime = &SpliceTime{}
 
 		bitsUsed := 0
-		tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 0)
+		tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 0)
 		bitsUsed, err = insertComponent.SpliceTime.DecodeFromRawBytes(tmpBytes)
 		numOfParsedBits += bitsUsed
 	}
@@ -292,10 +292,10 @@ func (insertComponent *InsertComponent) DecodeFromRawBytes(input []byte, spliceI
 
 //DecodeFromRawBytes parses input []byte to ScheduleComponent object
 func (scheduleComponent *ScheduleComponent) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
-	scheduleComponent.ComponentTag, _, err = bits.Byte(input, numOfParsedBits+1)
+	scheduleComponent.ComponentTag, _, err = bits.Byte(input, numOfParsedBits)
 	numOfParsedBits += 8
 
-	scheduleComponent.UTCSpliceTime, _, err = bits.Uint32(input, numOfParsedBits+1)
+	scheduleComponent.UTCSpliceTime, _, err = bits.Uint32(input, numOfParsedBits)
 	numOfParsedBits += 32
 
 	if err != nil {
@@ -308,15 +308,15 @@ func (scheduleComponent *ScheduleComponent) DecodeFromRawBytes(input []byte) (nu
 func (breakDuration *BreakDuration) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
 	var tmpBytes []byte
 
-	breakDuration.AutoReturn, _, err = bits.Bool(input, numOfParsedBits+1)
+	breakDuration.AutoReturn, _, err = bits.Bool(input, numOfParsedBits)
 	numOfParsedBits++
 
 	numOfParsedBits += 6 //reserved 6 bits
 
-	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 33)
+	tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 33)
 	tmpBytes, _ = bits.ShiftRight(tmpBytes, 7)
 	tmpBytes = append([]byte{0x00, 0x00, 0x00}, tmpBytes...)
-	breakDuration.Duration, _, err = bits.Uint64(tmpBytes, 1)
+	breakDuration.Duration, _, err = bits.Uint64(tmpBytes, 0)
 	numOfParsedBits += 33
 
 	if err != nil {
@@ -329,16 +329,16 @@ func (breakDuration *BreakDuration) DecodeFromRawBytes(input []byte) (numOfParse
 func (spliceTime *SpliceTime) DecodeFromRawBytes(input []byte) (numOfParsedBits int, err error) {
 	var tmpBytes []byte
 
-	spliceTime.TimeSpecifiedFlag, _, err = bits.Bool(input, numOfParsedBits+1)
+	spliceTime.TimeSpecifiedFlag, _, err = bits.Bool(input, numOfParsedBits)
 	numOfParsedBits++
 
 	if spliceTime.TimeSpecifiedFlag {
 		numOfParsedBits += 6 //reserved 6 bits
 
-		tmpBytes, _, err = bits.SubBits(input, numOfParsedBits+1, 33)
+		tmpBytes, _, err = bits.SubBits(input, numOfParsedBits, 33)
 		tmpBytes, _ = bits.ShiftRight(tmpBytes, 7)
 		tmpBytes = append([]byte{0x00, 0x00, 0x00}, tmpBytes...)
-		_, spliceTime.PTSTime, err = bits.Uint64(tmpBytes, 1)
+		_, spliceTime.PTSTime, err = bits.Uint64(tmpBytes, 0)
 		numOfParsedBits += 33
 	} else {
 		numOfParsedBits += 7 //reserved 7 bits
