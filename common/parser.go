@@ -2,7 +2,6 @@ package common
 
 type Parser interface {
 	DecodeFromRawBytes([]byte) (int, error)
-	UnmarshalJSON([]byte) error
 	DecodeFromJSON(string) error
 	JSON(...string) string
 	SchemaVersion() string
