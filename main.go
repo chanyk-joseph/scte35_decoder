@@ -31,7 +31,7 @@ func main() {
 	fmt.Println("CRC32 In Hex: ", obj.CRC32InHex)
 	fmt.Println("Entire SCTE35 Structure: \n", obj.JSON("	"))
 
-	fmt.Println("==============================================================================")
+	fmt.Println("===============================================================================")
 
 	jsonStr := obj.JSON()
 	obj2 := &SCTE35_2013.SCTE35{}
